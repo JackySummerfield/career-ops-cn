@@ -236,6 +236,14 @@ AI产品总监 / AI平台产品负责人
 
 </details>
 
+## 🗺️ Roadmap
+
+- [x] **Core workflows** — 母版简历、JD评估、Tracker、简历定制、面试准备、复盘
+- [ ] **静态 HTML Dashboard** — 零依赖生成式一览页，双击打开，显示 Active/History 分表 + 文件链接
+- [ ] **局部升级** — 待静态 HTML 被证明不足时，升级为 localhost portal
+
+详见 [`docs/roadmap.md`](docs/roadmap.md)。
+
 ## 🌟 References & Credits
 
 - [career-ops](https://github.com/santifer/career-ops) — 项目灵感来源

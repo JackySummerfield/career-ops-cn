@@ -237,7 +237,13 @@ AI Product Director / AI Platform Product Lead
 ```
 
 </details>
+## 🗺️ Roadmap
 
+- [x] **Core workflows** — Master resume, JD eval, Tracker, resume tailoring, interview prep, debrief
+- [ ] **Static HTML Dashboard** — Zero-dependency generated overview page; double-click to open; Active/History tables with file links
+- [ ] **Localhost portal** — Upgrade path if static HTML proves insufficient
+
+See [`docs/roadmap.md`](docs/roadmap.md) for details.
 ## �🙏 Acknowledgments
 
 - [career-ops](https://github.com/santifer/career-ops) — Original inspiration
