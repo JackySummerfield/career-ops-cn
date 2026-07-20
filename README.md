@@ -68,6 +68,11 @@ git clone https://github.com/jackysummerfield/career-ops-cn.git ~/.agents/skills
 
 ## ⚙️ Workflow Overview
 
+> 💡 母版简历是一个持续积累的事实库，不直接投递；稳定版本用于某个投递方向，具体JD只做轻量建议并等待用户确认。面试复盘会自动反哺母版简历，形成闭环。
+
+<details>
+<summary><b>📊 点击展开完整流程图</b></summary>
+
 ```mermaid
 flowchart TD
     subgraph W0 ["W0 初始化"]
@@ -108,7 +113,7 @@ flowchart TD
     style W4W5 fill:#f3e8fd,stroke:#904ad9
 ```
 
-> 💡 母版简历是一个持续积累的事实库，不直接投递；稳定版本用于某个投递方向，具体JD只做轻量建议并等待用户确认。面试复盘会自动反哺母版简历，形成闭环。
+</details>
 
 ## 📄 输出示例
 

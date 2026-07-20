@@ -70,6 +70,11 @@ Type `Evaluate this JD: [paste any JD]`. If you see a 10-dimension scoring table
 
 ## ⚙️ Workflow Overview
 
+> 💡 The master resume is a living fact base, not a direct submission copy. Stable versions serve target directions; JD-level edits remain light and require user confirmation. Debrief feeds insights back to the master, forming a closed loop.
+
+<details>
+<summary><b>📊 Click to expand full workflow diagram</b></summary>
+
 ```mermaid
 flowchart TD
     subgraph W0 ["W0 Initialize"]
@@ -110,7 +115,7 @@ flowchart TD
     style W4W5 fill:#f3e8fd,stroke:#904ad9
 ```
 
-> 💡 The master resume is a living fact base, not a direct submission copy. Stable versions serve target directions; JD-level edits remain light and require user confirmation. Debrief feeds insights back to the master, forming a closed loop.
+</details>
 
 ## � Output Examples
 
