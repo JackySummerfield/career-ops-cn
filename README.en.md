@@ -71,23 +71,46 @@ Type `Evaluate this JD: [paste any JD]`. If you see a 10-dimension scoring table
 ## ⚙️ Workflow Overview
 
 ```mermaid
-graph LR
-    A[Initial Resume + Extra Facts] --> B[Master Fact Base]
-    B --> C[Direction Diagnosis]
-    C --> D[User Confirms Directions]
-    D --> E[Stable Resume Versions]
-    E --> F[Fetch JD]
-    F --> G[10-Dim Evaluation]
-    G --> H{Worth applying?}
-    H -->|Yes| I[Add to Tracker]
-    H -->|No| F
-    I --> J[Light JD Suggestions]
-    J --> K[User Confirms Changes]
-    K --> L[Final Resume]
-    L --> M[Interview Prep]
+flowchart TD
+    subgraph W0 ["W0 Initialize"]
+        A["📝 Initial Resume + Facts"] --> B["📚 Master Fact Base"]
+    end
+
+    subgraph W3A ["W3 Direction Diagnosis"]
+        B --> C["🎯 Direction Diagnosis"]
+        C --> D["✅ User Confirms"]
+        D --> E["📄 Stable Resume Versions"]
+    end
+
+    subgraph W1W2 ["W1 JD Eval + W2 Tracker"]
+        F["🔍 Fetch JD"] --> G["📊 10-Dim Evaluation"]
+        G --> H{"≥ 3.5?"}
+        H -->|"✅ Apply"| I["📌 Add to Tracker"]
+        H -->|"❌ Skip"| F
+    end
+
+    subgraph W3C ["W3 Resume Tailoring"]
+        I --> J["💡 Light JD Suggestions"]
+        J --> K["👤 User Confirms"]
+        K --> L["📨 Final Resume"]
+    end
+
+    subgraph W4W5 ["W4 Interview + W5 Debrief"]
+        L --> M["🎭 Interview Prep"]
+        M --> N["💬 Debrief"]
+    end
+
+    E --> F
+    N -.->|"🔄 Feed back"| B
+
+    style W0 fill:#e8f4fd,stroke:#4a90d9
+    style W3A fill:#e8fde8,stroke:#4a9a4a
+    style W1W2 fill:#fff3e0,stroke:#e6930a
+    style W3C fill:#fde8f4,stroke:#d94a90
+    style W4W5 fill:#f3e8fd,stroke:#904ad9
 ```
 
-> 💡 The master resume is a living fact base, not a direct submission copy. Stable versions serve target directions; JD-level edits remain light and require user confirmation.
+> 💡 The master resume is a living fact base, not a direct submission copy. Stable versions serve target directions; JD-level edits remain light and require user confirmation. Debrief feeds insights back to the master, forming a closed loop.
 
 ## � Output Examples
 

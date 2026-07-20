@@ -69,23 +69,46 @@ git clone https://github.com/jackysummerfield/career-ops-cn.git ~/.agents/skills
 ## ⚙️ Workflow Overview
 
 ```mermaid
-graph LR
-    A[初版简历 + 补充信息] --> B[母版事实库]
-    B --> C[投递方向诊断]
-    C --> D[用户确认方向]
-    D --> E[稳定投递版本]
-    E --> F[获取 JD]
-    F --> G[10维度评估]
-    G --> H{值得投?}
-    H -->|Yes| I[加入 Tracker]
-    H -->|No| F
-    I --> J[JD轻量适配建议]
-    J --> K[用户确认采纳]
-    K --> L[最终简历]
-    L --> M[面试准备]
+flowchart TD
+    subgraph W0 ["W0 初始化"]
+        A["📝 初版简历 + 补充信息"] --> B["📚 母版事实库"]
+    end
+
+    subgraph W3A ["W3 方向诊断"]
+        B --> C["🎯 投递方向诊断"]
+        C --> D["✅ 用户确认方向"]
+        D --> E["📄 稳定投递版本"]
+    end
+
+    subgraph W1W2 ["W1 JD评估 + W2 Tracker"]
+        F["🔍 获取 JD"] --> G["📊 10维度评估"]
+        G --> H{"≥ 3.5?"}
+        H -->|"✅ 值得投"| I["📌 加入 Tracker"]
+        H -->|"❌ 跳过"| F
+    end
+
+    subgraph W3C ["W3 简历适配"]
+        I --> J["💡 JD轻量适配建议"]
+        J --> K["👤 用户确认采纳"]
+        K --> L["📨 最终简历"]
+    end
+
+    subgraph W4W5 ["W4 面试准备 + W5 复盘"]
+        L --> M["🎭 面试准备"]
+        M --> N["💬 面试复盘"]
+    end
+
+    E --> F
+    N -.->|"🔄 反哺母版"| B
+
+    style W0 fill:#e8f4fd,stroke:#4a90d9
+    style W3A fill:#e8fde8,stroke:#4a9a4a
+    style W1W2 fill:#fff3e0,stroke:#e6930a
+    style W3C fill:#fde8f4,stroke:#d94a90
+    style W4W5 fill:#f3e8fd,stroke:#904ad9
 ```
 
-> 💡 母版简历是一个持续积累的事实库，不直接投递；稳定版本用于某个投递方向，具体JD只做轻量建议并等待用户确认。
+> 💡 母版简历是一个持续积累的事实库，不直接投递；稳定版本用于某个投递方向，具体JD只做轻量建议并等待用户确认。面试复盘会自动反哺母版简历，形成闭环。
 
 ## 📄 输出示例
 
