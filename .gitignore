@@ -1,0 +1,6 @@
+# User data is canonical private workspace content. Public exports use the
+# existing target repository boundary and never include users/.
+
+# Compiled / cache
+__pycache__/
+*.pyc

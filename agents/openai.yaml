@@ -1,0 +1,4 @@
+interface:
+  display_name: "Career Ops CN"
+  short_description: "Fetch and evaluate JDs, tailor resumes, and prepare interviews"
+  default_prompt: "Use $career-ops-cn to fetch and evaluate this job posting, then show the fit and next action."
