@@ -44,19 +44,20 @@
 1. **新增标准化故事** — 高频问题 + 本次回答中的好素材 → 建议形成 STAR 故事写入 `cv_master.md` "三 → B. 个人故事"
 2. **优化现有故事** — 本次面试中发现更好的表达/数据 → 建议更新已有故事
 3. **补充事实** — 面试中提到但母版尚未记录的项目细节、数据、成果 → 建议补充
-4. **标注风险** — 面试中被追问暴露的薄弱点 → 建议标注到求职偏好/真实性边界
+4. **沉淀表达策略** — 经用户确认的自我介绍、动机题和标准答法 → 建议写入 `interview_playbook.md`
+5. **标注风险** — 面试中被追问暴露的薄弱点 → 建议标注到求职偏好/真实性边界
 
 > 执行母版更新时遵循 w0.5 的 STAR 结构化流程和中英对照规则。
 
 ### Stage E: 更新 timeline.md
 
-在 `<USER>/jobs/{company}_{role}/timeline.md` 追加面试记录：
+在 `<USER>/jobs/{id:03d}_{company}_{role}/timeline.md` 追加面试记录：
 - 日期、轮次、面试官角色（如可判断）、核心问题列表、自评总结
 
 ## 存储
 
 ```
-<USER>/jobs/{company}_{role}/
+<USER>/jobs/{id:03d}_{company}_{role}/
 ├── interview_debrief_r1.md   # 第1轮复盘（r1=round 1）
 ├── interview_debrief_r2.md   # 第2轮复盘（按轮次递增）
 └── timeline.md               # 自动追加记录

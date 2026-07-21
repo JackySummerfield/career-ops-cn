@@ -62,12 +62,12 @@ career-ops-cn/
         │       └── {direction}_en.md
         ├── tracker.csv
         └── jobs/
-            └── {company}_{role}/
+            └── {id:03d}_{company}_{role}/
                 ├── eval.md
                 ├── timeline.md
                 ├── cv_suggestions.md
                 ├── cv_cn.md / cv_en.md
-                ├── interview_prep.md
+                ├── interview_prep.md / interview_prep.html
                 └── interview_debrief_r{N}.md
 ```
 
@@ -82,7 +82,7 @@ career-ops-cn/
 | 方向诊断 | `<USER>/resume/direction_diagnosis.md` |
 | 稳定投递版本 | `<USER>/resume/versions/{direction}_cn.md` / `{direction}_en.md` |
 | 追踪表 | `<USER>/tracker.csv` |
-| 职位目录 | `<USER>/jobs/{company}_{role}/` |
+| 职位目录 | `<USER>/jobs/{id:03d}_{company}_{role}/` |
 
 ### 用户识别
 
@@ -117,4 +117,4 @@ career-ops-cn/
 ### 命名规范
 
 - 用户目录名：英文，如 `alex_chen`
-- 职位子目录：`{company}_{role}`，小写英文，空格用下划线
+- 职位子目录：`{id:03d}_{company}_{role}`；Tracker ID 是稳定前缀，公司和职位部分做路径安全规范化，优先使用小写英文/拼音，必要时可保留 Unicode 职位名

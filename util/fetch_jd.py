@@ -1,46 +1,15 @@
-"""
-fetch_jd.py - 使用Playwright抓取SPA页面的职位描述
-用法: python fetch_jd.py [url]
+"""Fetch a rendered SPA job description with Playwright as a local fallback.
 
-适用于没有受支持浏览器控制能力的客户端，支持常见 SPA 招聘页面。
-如遇验证码/登录拦截，会暂停等待用户手动操作后继续。
-
-Codex 应优先使用 Browser/Chrome skill；本脚本只是兜底。Boss直聘等平台可能检测自动化，成功不作保证。
+Use this script only when the client has no supported browser-control capability.
+If a login, CAPTCHA, or security challenge appears, complete ordinary user steps
+manually or stop and use screenshots. This script does not bypass anti-automation
+controls or read browser session secrets.
 """
 
 import argparse
 import sys
 import time
 from pathlib import Path
-
-
-# 隐藏Playwright自动化特征的JS脚本
-STEALTH_JS = """
-// 覆盖 navigator.webdriver
-Object.defineProperty(navigator, 'webdriver', { get: () => undefined });
-
-// 覆盖 chrome runtime
-window.chrome = { runtime: {} };
-
-// 覆盖 permissions
-const originalQuery = window.navigator.permissions.query;
-window.navigator.permissions.query = (parameters) => (
-    parameters.name === 'notifications' ?
-    Promise.resolve({ state: Notification.permission }) :
-    originalQuery(parameters)
-);
-
-// 覆盖 plugins
-Object.defineProperty(navigator, 'plugins', {
-    get: () => [1, 2, 3, 4, 5],
-});
-
-// 覆盖 languages
-Object.defineProperty(navigator, 'languages', {
-    get: () => ['zh-CN', 'zh', 'en'],
-});
-"""
-
 
 def fetch_jd(url: str, output_dir: str = "jds", channel: str | None = None) -> str:
     try:
@@ -54,7 +23,6 @@ def fetch_jd(url: str, output_dir: str = "jds", channel: str | None = None) -> s
     with sync_playwright() as p:
         launch_options = {
             "headless": False,
-            "args": ["--disable-blink-features=AutomationControlled"],
         }
         if channel:
             launch_options["channel"] = channel
@@ -62,8 +30,6 @@ def fetch_jd(url: str, output_dir: str = "jds", channel: str | None = None) -> s
         context = browser.new_context(
             viewport={"width": 1280, "height": 900},
         )
-        # 注入stealth脚本，在每个页面加载前执行
-        context.add_init_script(STEALTH_JS)
         page = context.new_page()
 
         print(f"正在打开: {url}")
@@ -74,7 +40,7 @@ def fetch_jd(url: str, output_dir: str = "jds", channel: str | None = None) -> s
 
         # 检查页面是否正常加载（简单判断：页面文本长度）
         body_text = page.inner_text("body")
-        if len(body_text.strip()) < 100:
+        if len(body_text.strip()) < 200:
             print("\n⚠️  页面内容过少，可能遇到验证码或登录拦截")
             print("    请在浏览器中完成操作，然后回到终端按 Enter 继续...")
             input()
