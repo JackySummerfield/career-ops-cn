@@ -21,3 +21,17 @@
 3. 如用户提供了面试细节（问了什么、感受如何），一并记录在备注中
 
 > **不覆盖历史** — tracker.csv 只反映当前状态，timeline.md 保留完整轨迹。
+
+## Dashboard 刷新
+
+每次 tracker 变更后（加入或更新状态），运行：
+
+```
+python util/gen_dashboard.py --user <username> --vscode
+```
+
+生成 `<USER>/dashboard.html`，用户可双击打开查看最新全局状态。
+
+## 新职位目录命名规则
+
+新加入 tracker 的职位，目录名使用 `{id:03d}_{company}_{role}` 格式（如 `022_bytedance_ai_engineer`），其中 company 和 role 用小写英文/拼音，空格和特殊字符用下划线替代。
