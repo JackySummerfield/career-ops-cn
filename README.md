@@ -25,7 +25,7 @@
 - **多平台兼容** — 不写死客户端专用工具；Copilot Chat、Codex CLI、Claude Code 等均可使用
 - **国内招聘平台适配** — Boss直聘、猎聘、拉勾等 SPA 页面抓取；截图直接识别 JD
 - **10 维度 JD 评估** — 角色匹配、技能覆盖、成长空间、薪资、地理位置等维度独立打分，辅助投递决策
-- **面试材料生成** — STAR 素材结构化 + HTML 面试手册（公司背景、高频问题、反问清单）
+- **面试材料生成** — STAR 素材结构化 + Markdown 源文件 + HTML 面试手册（公司背景、高频问题、反问清单）
 - **多用户隔离** — `users/<name>/` 独立工作区，个人数据 gitignore，Skill 可公开共享
 - **诊断式简历定制** — 母版简历保持大而全事实库，先推荐投递方向并生成稳定版本，再对具体JD给轻量适配建议，用户确认后才落盘
 - **分层 JD 抓取** — 静态读取、搜索恢复、已登录浏览器 DOM、用户协助和文本粘贴逐级回退
@@ -65,6 +65,12 @@ git clone https://github.com/jackysummerfield/career-ops-cn.git ~/.agents/skills
 输入 `评估这个JD：[粘贴任意JD]`，看到 10 维度评分表格就说明装好了。
 
 > 💡 支持任何具备文件读写能力的 AI 助手（Copilot Chat、Codex、Claude Code 等）。如客户端支持浏览器控制能力，可直接读取 SPA 招聘页面；否则通过截图识别或文本粘贴兜底。详见 [references/jd-fetching.md](references/jd-fetching.md)。
+
+### 可选本地工具
+
+- `util/gen_dashboard.py` 默认生成标准 `dashboard.md`，也可生成可双击打开的 `dashboard.html`。
+- `util/render_markdown.py` 将面试准备 Markdown 渲染为自包含 HTML；两者都只依赖 Python 标准库。
+- `util/fetch_jd.py` 仅作为没有受支持浏览器控制能力时的 Playwright 兜底，安装方式和安全边界见 [`util/README.md`](util/README.md)。
 
 ## ⚙️ Workflow Overview
 
@@ -239,7 +245,7 @@ AI产品总监 / AI平台产品负责人
 ## 🗺️ Roadmap
 
 - [x] **Core workflows** — 母版简历、JD评估、Tracker、简历定制、面试准备、复盘
-- [ ] **静态 HTML Dashboard** — 零依赖生成式一览页，双击打开，显示 Active/History 分表 + 文件链接
+- [x] **Portable Markdown Dashboard + 可选 HTML** — 默认生成标准 Markdown 导航，同时提供零依赖 HTML 兼容视图
 - [ ] **局部升级** — 待静态 HTML 被证明不足时，升级为 localhost portal
 
 详见 [`docs/roadmap.md`](docs/roadmap.md)。

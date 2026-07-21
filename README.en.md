@@ -24,7 +24,7 @@ Inspired by [career-ops](https://github.com/santifer/career-ops) and adapted for
 
 - **Codex + Copilot compatible** — Avoids hard-coded client-only interaction tools; Codex can use supported browser control to read rendered SPA pages
 - **10-dimension JD evaluation** — Scores role fit, skill coverage, growth potential, salary, WLB, etc. independently to support application decisions
-- **Interview prep generation** — STAR story structuring + HTML interview handbook (company background, common questions, counter-questions)
+- **Interview prep generation** — STAR story structuring + portable Markdown source + HTML interview handbook (company background, common questions, counter-questions)
 - **Multi-user isolation** — `users/<name>/` workspaces with gitignored personal data; the Skill itself is shareable
 - **Diagnostic resume tailoring** — Keep the master resume as a full fact base, recommend target directions first, generate stable direction-specific versions, then provide light JD-level suggestions that require user confirmation before writing final resumes
 - **Layered JD retrieval** — Direct reads, search recovery, signed-in browser DOM, user-assisted steps, and pasted text form a progressive fallback; platform success is verified at runtime
@@ -67,6 +67,12 @@ In Codex or Copilot Chat, type `Initialize job search workspace` and follow the 
 Type `Evaluate this JD: [paste any JD]`. If you see a 10-dimension scoring table, you're all set.
 
 > 💡 Codex should prefer its supported Browser/Chrome control. Use Playwright only as a fallback when the client has no browser-control capability. See [references/jd-fetching.md](references/jd-fetching.md).
+
+### Optional local utilities
+
+- `util/gen_dashboard.py` generates a portable `dashboard.md` by default and can also produce a double-clickable `dashboard.html`.
+- `util/render_markdown.py` renders interview-prep Markdown as standalone HTML; both utilities use only the Python standard library.
+- `util/fetch_jd.py` is an optional Playwright fallback for clients without supported browser control. See [`util/README.md`](util/README.md) for installation and safety boundaries.
 
 ## ⚙️ Workflow Overview
 
@@ -240,7 +246,7 @@ AI Product Director / AI Platform Product Lead
 ## 🗺️ Roadmap
 
 - [x] **Core workflows** — Master resume, JD eval, Tracker, resume tailoring, interview prep, debrief
-- [ ] **Static HTML Dashboard** — Zero-dependency generated overview page; double-click to open; Active/History tables with file links
+- [x] **Portable Markdown Dashboard + optional HTML** — Standard Markdown navigation by default, with a zero-dependency HTML companion view
 - [ ] **Localhost portal** — Upgrade path if static HTML proves insufficient
 
 See [`docs/roadmap.md`](docs/roadmap.md) for details.
