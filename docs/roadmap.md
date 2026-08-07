@@ -15,7 +15,7 @@ This roadmap describes **what** lands **when**. For current workflow behavior an
 - [x] CSV application tracker with controlled statuses
 - [x] Per-job evaluation and timeline assets
 - [x] Resume tailoring, interview preparation, and interview debrief workflows
-- [x] Multi-user isolation under gitignored `users/<username>/` directories
+- [x] User-data isolation under explicit external private data-repository roots
 
 ---
 
@@ -39,13 +39,13 @@ not ship a one-time migration or rename utility.
 
 ### Phase 2 — Build the dashboard generator
 
-- [x] Add `util/gen_dashboard.py` — reads `tracker.csv` + `jobs/` and writes `dashboard.md` by default, with optional `dashboard.html`
+- [x] Add `util/gen_dashboard.py` — reads `<DATA_ROOT>/tracker/tracker.csv` + `jobs/` and writes local `dashboard.md` by default, with optional `dashboard.html`
 - [x] Add `util/render_markdown.py` — render interview-prep Markdown as responsive standalone HTML with no external dependency
 - [x] Zero runtime dependencies (Python stdlib only: `csv`, `pathlib`, `html`, `datetime`, `urllib.parse`)
-- [x] Split into Active (`evaluating`, `applied`, `interviewing`) and History (`offer`, `rejected`, `withdrawn`) tables
+- [x] Split into Active (`evaluating`, `applied`, `interviewing`), Offers (`offer`), and History (`rejected`, `closed`, `withdrawn`) tables
 - [x] Sort Active by score descending → stage progress → last update; History by most recent date
 - [x] Markdown rows use relative links to actual job files so they work across standard Markdown readers
-- [x] HTML rows retain local directory links and optionally a VS Code URI (`vscode://file/...`)
+- [x] Local HTML rows retain directory links and optionally a VS Code URI (`vscode://file/...`); cloud output never emits either
 - [x] Show global asset links: master resume, direction diagnosis, stable resume versions
 - [x] Embed minimal CSS for readability; no JavaScript required for core viewing
 - [ ] Optional: collapsible job detail (eval summary, timeline) via `<details>` tags
@@ -58,8 +58,8 @@ not ship a one-time migration or rename utility.
 
 ### Acceptance criteria
 
-1. `python util/gen_dashboard.py --user <name>` produces a standard `dashboard.md` without network requests.
-2. `python util/gen_dashboard.py --user <name> --format html` produces a self-contained `dashboard.html` without network requests.
+1. `python util/gen_dashboard.py --data-root <private-repo>` produces a standard `dashboard.md` without network requests.
+2. `python util/gen_dashboard.py --data-root <private-repo> --format html` produces a self-contained local `dashboard.html` without network requests.
 3. Markdown readers show Active/History tables with correct sorting and working relative file links.
 4. Double-clicking the HTML shows Active/History tables with correct sorting and working local links.
 5. The generator runs in < 1 second for typical tracker sizes (< 50 jobs).

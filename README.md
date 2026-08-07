@@ -26,7 +26,7 @@
 - **国内招聘平台适配** — Boss直聘、猎聘、拉勾等 SPA 页面抓取；截图直接识别 JD
 - **10 维度 JD 评估** — 角色匹配、技能覆盖、成长空间、薪资、地理位置等维度独立打分，辅助投递决策
 - **面试材料生成** — STAR 素材结构化 + Markdown 源文件 + HTML 面试手册（公司背景、高频问题、反问清单）
-- **多用户隔离** — `users/<name>/` 独立工作区，个人数据 gitignore，Skill 可公开共享
+- **多用户隔离** — 用户数据位于独立私有仓库，Skill 通过显式数据根目录或云端 GitHub 插件访问，公共仓库不含用户副本
 - **诊断式简历定制** — 母版简历保持大而全事实库，先推荐投递方向并生成稳定版本，再对具体JD给轻量适配建议，用户确认后才落盘
 - **分层 JD 抓取** — 静态读取、搜索恢复、已登录浏览器 DOM、用户协助和文本粘贴逐级回退
 
@@ -56,11 +56,21 @@ git clone https://github.com/jackysummerfield/career-ops-cn.git "%USERPROFILE%\.
 git clone https://github.com/jackysummerfield/career-ops-cn.git ~/.agents/skills/career-ops-cn
 ```
 
-**2. 初始化工作区**
+**2. 绑定私有数据边界**
+
+本地 Codex/Copilot 使用外部私有数据仓库，不要在 Skill 目录下创建用户数据：
+
+```bash
+export CAREER_OPS_DATA_ROOT=/path/to/private-career-data
+```
+
+云端 V1 使用 GitHub 插件，并且只授权运行时配置的 `<PRIVATE_DATA_REPOSITORY>`；其他用户数据仓库不连接 ChatGPT。
+
+**3. 初始化工作区**
 
 在 Codex 或 Copilot Chat 里输入 `初始化求职工作区`，按提示填入简历内容。
 
-**3. 验证**
+**4. 验证**
 
 输入 `评估这个JD：[粘贴任意JD]`，看到 10 维度评分表格就说明装好了。
 
@@ -130,7 +140,7 @@ flowchart TD
 # 张三 | 高级产品经理
 
 ## 基本信息
-- 电话：138-xxxx-xxxx | 邮箱：zhangsan@email.com
+- 电话：138-xxxx-xxxx | 邮箱：candidate@example.invalid
 - 坐标：北京 | 期望薪资：80-100w
 
 ## 求职意向

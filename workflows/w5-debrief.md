@@ -51,13 +51,13 @@
 
 ### Stage E: 更新 timeline.md
 
-在 `<USER>/jobs/{id:03d}_{company}_{role}/timeline.md` 追加面试记录：
+在 `<DATA_ROOT>/jobs/{id:03d}_{company}_{role}/timeline.md` 追加面试记录：
 - 日期、轮次、面试官角色（如可判断）、核心问题列表、自评总结
 
 ## 存储
 
 ```
-<USER>/jobs/{id:03d}_{company}_{role}/
+<DATA_ROOT>/jobs/{id:03d}_{company}_{role}/
 ├── interview_debrief_r1.md   # 第1轮复盘（r1=round 1）
 ├── interview_debrief_r2.md   # 第2轮复盘（按轮次递增）
 └── timeline.md               # 自动追加记录

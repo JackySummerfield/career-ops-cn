@@ -1,6 +1,8 @@
 # Utility Scripts
 
-These scripts are optional local helpers for a user workspace. They read and write files under `users/<username>/`; they do not make network requests unless `fetch_jd.py` is explicitly used.
+These scripts are optional local helpers for an external private data repository. They require an explicit
+`--data-root` (or `CAREER_OPS_DATA_ROOT`) and do not read from the public Skill repository. They do not make
+network requests unless `fetch_jd.py` is explicitly used.
 
 ## Requirements
 
@@ -21,18 +23,18 @@ Run these commands from the skill root:
 
 ```bash
 # Markdown-first dashboard (default)
-python util/gen_dashboard.py --user <username>
+python util/gen_dashboard.py --data-root "$CAREER_OPS_DATA_ROOT"
 
 # Optional standalone browser dashboard
-python util/gen_dashboard.py --user <username> --format html
+python util/gen_dashboard.py --data-root "$CAREER_OPS_DATA_ROOT" --format html
 
 # Include VS Code file links in the HTML dashboard
-python util/gen_dashboard.py --user <username> --format html --vscode
+python util/gen_dashboard.py --data-root "$CAREER_OPS_DATA_ROOT" --format html --vscode
 
 # Render interview_prep.md to a standalone HTML companion
 python util/render_markdown.py \
-  "users/<username>/jobs/{id:03d}_{company}_{role}/interview_prep.md" \
-  --output "users/<username>/jobs/{id:03d}_{company}_{role}/interview_prep.html"
+  "$CAREER_OPS_DATA_ROOT/jobs/{id:03d}_{company}_{role}/interview_prep.md" \
+  --output "$CAREER_OPS_DATA_ROOT/jobs/{id:03d}_{company}_{role}/interview_prep.html"
 
 # Optional rendered-page fallback for clients without browser control
 python util/fetch_jd.py "https://example.com/job"
@@ -42,5 +44,8 @@ python util/fetch_jd.py "https://example.com/job"
 
 - `dashboard.md` is the portable source for Obsidian, VS Code Markdown Preview, GitHub, and other standard Markdown readers.
 - `dashboard.html` and `interview_prep.html` are local reading companions; they may contain machine-specific file links.
-- Keep all generated dashboards, resumes, job records, transcripts, and fetched JDs inside the gitignored `users/` directory.
+- Keep generated dashboards and local HTML companions outside the public Skill repository. Raw recordings,
+  screenshots, PDFs, DOCX files, and credentials must never be written by these utilities into Git.
+- Cloud mode is intentionally unsupported by the file-writing utilities: the GitHub plugin should render
+  Markdown in the conversation and use the data-boundary/SHA checks before an atomic repository write.
 - Do not commit credentials, cookies, browser profiles, or private session data.

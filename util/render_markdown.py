@@ -5,6 +5,8 @@ the headings, lists, tables, quotes, code blocks, links, and inline emphasis
 used by career-ops-cn interview materials.
 """
 
+from __future__ import annotations
+
 import argparse
 import html
 import re

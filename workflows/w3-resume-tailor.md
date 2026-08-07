@@ -4,21 +4,21 @@
 
 ## Core Principles
 
-1. `<USER>/resume/cv_master.md` 是母版事实库，不直接投递，不因单个JD被覆盖。
-2. 稳定投递版本按用户确认的投递方向生成，保存到 `<USER>/resume/versions/{direction}_cn.md` / `{direction}_en.md`。
+1. `<DATA_ROOT>/resumes/cv_master.md` 是母版事实库，不直接投递，不因单个JD被覆盖。
+2. 稳定投递版本按用户确认的投递方向生成，保存到 `<DATA_ROOT>/resumes/versions/{direction}_cn.md` / `{direction}_en.md`。
 3. 具体JD层只先生成轻量适配建议，默认不直接生成最终简历。
-4. 用户明确确认采纳哪些建议后，才生成或更新 `<USER>/jobs/{id:03d}_{company}_{role}/cv_cn.md` / `cv_en.md`。
+4. 用户明确确认采纳哪些建议后，才生成或更新 `<DATA_ROOT>/jobs/{id:03d}_{company}_{role}/cv_cn.md` / `cv_en.md`。
 5. **绝不添加母版简历中没有的经历、技能、结果、团队规模、用户规模、技术栈、产品权限或管理人数**。
 6. 允许的改动仅限：排序、删减、同义词替换、基于真实事实的表达压缩/展开、将事实映射到JD关键词。
 7. 不写"求职意向"段落，除非用户明确要求。
 
 ## Stage A: 投递方向诊断（如尚未完成）
 
-当用户还没有明确方向，或初始化后尚未生成 `<USER>/resume/direction_diagnosis.md` 时：
+当用户还没有明确方向，或初始化后尚未生成 `<DATA_ROOT>/resumes/direction_diagnosis.md` 时：
 
-1. 读取 `<USER>/resume/cv_master.md`。
+1. 读取 `<DATA_ROOT>/resumes/cv_master.md`。
 2. 基于真实经历推荐投递方向，不预设固定方向。
-3. 输出并保存 `<USER>/resume/direction_diagnosis.md`，格式如下：
+3. 输出并保存 `<DATA_ROOT>/resumes/direction_diagnosis.md`，格式如下：
 
 ```markdown
 # 投递方向诊断
@@ -47,15 +47,15 @@
    - 工作经历
    - 项目经历
    - 技能关键词
-4. 保存到 `<USER>/resume/versions/{direction}_cn.md` / `{direction}_en.md`。
+4. 保存到 `<DATA_ROOT>/resumes/versions/{direction}_cn.md` / `{direction}_en.md`。
 
 ## Stage C: JD轻量适配建议
 
 当用户针对某个tracker职位或JD要求"定制简历"时：
 
 1. 先选择最合适的稳定投递版本；如无法判断，向用户确认使用哪个版本。
-2. 读取目标版本、`<USER>/jobs/{id:03d}_{company}_{role}/eval.md`（或JD原文）、tracker信息。
-3. 只输出适配建议，保存到 `<USER>/jobs/{id:03d}_{company}_{role}/cv_suggestions.md`，不直接改最终简历。
+2. 读取目标版本、`<DATA_ROOT>/jobs/{id:03d}_{company}_{role}/eval.md`（或JD原文）、tracker信息。
+3. 只输出适配建议，保存到 `<DATA_ROOT>/jobs/{id:03d}_{company}_{role}/cv_suggestions.md`，不直接改最终简历。
 4. 建议类型固定为：
    - `排序调整`
    - `关键词同义替换`
@@ -72,7 +72,7 @@
 # 简历轻量适配建议：[公司] [职位]
 
 ## 匹配摘要
-- 使用基础版本：`resume/versions/{direction}_cn.md`
+- 使用基础版本：`resumes/versions/{direction}_cn.md`
 - JD核心关键词：...
 - 当前版本已覆盖：...
 - 建议补强：...
@@ -92,5 +92,5 @@
 用户说"采纳建议"或逐条确认后：
 
 1. 基于稳定版本 + 采纳的建议，生成最终简历
-2. 保存到 `<USER>/jobs/{id:03d}_{company}_{role}/cv_cn.md` / `cv_en.md`
+2. 保存到 `<DATA_ROOT>/jobs/{id:03d}_{company}_{role}/cv_cn.md` / `cv_en.md`
 3. 更新 `cv_suggestions.md` 中"是否采纳"列

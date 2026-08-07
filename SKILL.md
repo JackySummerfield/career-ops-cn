@@ -35,7 +35,13 @@ Auto-switch response language based on user input language.
 
 ### Multi-user & Workspace
 
-所有用户数据存放在 `users/<username>/` 下（整个 `users/` 目录被 gitignore，个人数据不会上传）。
+公共 Skill 仓库只保存通用代码和 workflow。用户数据必须位于仓库外的私有数据仓库；本 Skill
+不会通过扫描自身目录或当前工作目录来猜测用户，也不会在公共仓库内创建 `users/` 副本。
+
+- 本地模式：通过 `CAREER_OPS_DATA_ROOT` 或 CLI 的 `--data-root` 显式指定私有数据仓库根目录。
+- 云端模式：通过 GitHub 插件显式访问运行时授权的 `<PRIVATE_DATA_REPOSITORY>`。
+- 云端默认拒绝公共程序仓库和任何未列入私有授权配置的数据仓库；其他用户数据不连接 ChatGPT。
+- 未配置数据边界时停止并请求配置，禁止回退到另一个用户或旧目录。
 
 ### 目录结构
 
@@ -52,44 +58,43 @@ career-ops-cn/
 │   └── w5-debrief.md
 ├── references/                       # 公开参考资料
 ├── util/                             # 工具脚本
-└── users/                            # 所有用户数据（gitignored）
-    └── <username>/
-        ├── resume/
-        │   ├── cv_master.md          # 中英双语个人百科全书
-        │   ├── direction_diagnosis.md
-        │   └── versions/
-        │       ├── {direction}_cn.md
-        │       └── {direction}_en.md
-        ├── tracker.csv
-        └── jobs/
-            └── {id:03d}_{company}_{role}/
-                ├── eval.md
-                ├── timeline.md
-                ├── cv_suggestions.md
-                ├── cv_cn.md / cv_en.md
-                ├── interview_prep.md / interview_prep.html
-                └── interview_debrief_r{N}.md
+└── tests/                            # 仅合成数据夹具
+
+career-ops-data-<user>/                # 外部私有数据仓库
+├── profile/
+├── tracker/tracker.csv
+├── resumes/
+│   ├── cv_master.md
+│   ├── direction_diagnosis.md
+│   └── versions/
+└── jobs/{id:03d}_{company}_{role}/
+    ├── eval.md
+    ├── timeline.md
+    ├── cv_suggestions.md
+    ├── cv_cn.md / cv_en.md
+    ├── interview_prep.md
+    └── interview_debrief_r{N}.md
 ```
 
 ### 路径约定
 
-以下用 `<USER>` 表示当前用户目录 `users/<username>/`：
+以下用 `<DATA_ROOT>` 表示外部私有数据仓库根目录：
 
 | 用途 | 路径 |
 |------|------|
-| 个人百科全书/母版简历 | `<USER>/resume/cv_master.md` |
-| 面试策略手册 | `<USER>/resume/interview_playbook.md` |
-| 方向诊断 | `<USER>/resume/direction_diagnosis.md` |
-| 稳定投递版本 | `<USER>/resume/versions/{direction}_cn.md` / `{direction}_en.md` |
-| 追踪表 | `<USER>/tracker.csv` |
-| 职位目录 | `<USER>/jobs/{id:03d}_{company}_{role}/` |
+| 个人百科全书/母版简历 | `<DATA_ROOT>/resumes/cv_master.md` |
+| 面试策略手册 | `<DATA_ROOT>/resumes/interview_playbook.md` |
+| 方向诊断 | `<DATA_ROOT>/resumes/direction_diagnosis.md` |
+| 稳定投递版本 | `<DATA_ROOT>/resumes/versions/{direction}_cn.md` / `{direction}_en.md` |
+| 追踪表 | `<DATA_ROOT>/tracker/tracker.csv` |
+| 职位目录 | `<DATA_ROOT>/jobs/{id:03d}_{company}_{role}/` |
 
-### 用户识别
+### 数据边界识别
 
-1. 列出 `users/` 下的子目录。
-2. **只有一个** → 自动选中。
-3. **多个** → 询问用户选择。
-4. **为空或不存在** → 触发 W0 初始化。
+1. 本地运行先读取显式的 `CAREER_OPS_DATA_ROOT`，并确认它位于 Skill 仓库之外。
+2. 云端运行先确认 GitHub 插件当前仓库等于私有配置中的 `CAREER_OPS_ALLOWED_DATA_REPOSITORY`，再读取目标文件。
+3. 如果没有配置、仓库不匹配或存在并发 SHA 变化，停止读写并要求重新确认。
+4. 不通过列出公共仓库目录来选择用户；新用户初始化应创建对应的私有数据仓库。
 
 ### Status 值（tracker.csv）
 
@@ -100,6 +105,7 @@ career-ops-cn/
 | `interviewing` | 面试中（具体轮次见 timeline.md） |
 | `offer` | 已收到offer |
 | `rejected` | 被拒 |
+| `closed` | 职位已被公司关闭、下线或招满 |
 | `withdrawn` | 主动放弃 |
 
 ### timeline.md 格式
@@ -116,5 +122,5 @@ career-ops-cn/
 
 ### 命名规范
 
-- 用户目录名：英文，如 `alex_chen`
-- 职位子目录：`{id:03d}_{company}_{role}`；Tracker ID 是稳定前缀，公司和职位部分做路径安全规范化，优先使用小写英文/拼音，必要时可保留 Unicode 职位名
+- 私有数据仓库按用户分离，例如 `career-ops-data-<user>`；不要在公共程序仓库内创建用户目录。
+- 职位子目录：`{id:03d}_{company}_{role}`；Tracker ID 是稳定前缀，公司和职位部分做路径安全规范化，优先使用小写英文/拼音，必要时可保留 Unicode 职位名。
