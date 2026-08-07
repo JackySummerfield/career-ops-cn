@@ -6,6 +6,8 @@ manually or stop and use screenshots. This script does not bypass anti-automatio
 controls or read browser session secrets.
 """
 
+from __future__ import annotations
+
 import argparse
 import sys
 import time

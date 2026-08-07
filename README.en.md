@@ -25,7 +25,7 @@ Inspired by [career-ops](https://github.com/santifer/career-ops) and adapted for
 - **Codex + Copilot compatible** — Avoids hard-coded client-only interaction tools; Codex can use supported browser control to read rendered SPA pages
 - **10-dimension JD evaluation** — Scores role fit, skill coverage, growth potential, salary, WLB, etc. independently to support application decisions
 - **Interview prep generation** — STAR story structuring + portable Markdown source + HTML interview handbook (company background, common questions, counter-questions)
-- **Multi-user isolation** — `users/<name>/` workspaces with gitignored personal data; the Skill itself is shareable
+- **Multi-user isolation** — user data lives in separate private repositories; the Skill uses an explicit local data root or the scoped GitHub connector, with no user copy in the public repository
 - **Diagnostic resume tailoring** — Keep the master resume as a full fact base, recommend target directions first, generate stable direction-specific versions, then provide light JD-level suggestions that require user confirmation before writing final resumes
 - **Layered JD retrieval** — Direct reads, search recovery, signed-in browser DOM, user-assisted steps, and pasted text form a progressive fallback; platform success is verified at runtime
 
@@ -58,11 +58,23 @@ git clone https://github.com/jackysummerfield/career-ops-cn.git ~/.agents/skills
 git clone https://github.com/jackysummerfield/career-ops-cn.git ~/.codex/skills/career-ops-cn
 ```
 
-**2. Initialize your workspace**
+**2. Bind a private data boundary**
+
+For local Codex/Copilot use, keep user data in an external private repository and never create a user copy
+inside the Skill directory:
+
+```bash
+export CAREER_OPS_DATA_ROOT=/path/to/private-career-data
+```
+
+For cloud V1, use the GitHub connector scoped only to the runtime-configured `<PRIVATE_DATA_REPOSITORY>`;
+other users' repositories must not be connected to ChatGPT.
+
+**3. Initialize your workspace**
 
 In Codex or Copilot Chat, type `Initialize job search workspace` and follow the prompts to fill in your resume.
 
-**3. Verify**
+**4. Verify**
 
 Type `Evaluate this JD: [paste any JD]`. If you see a 10-dimension scoring table, you're all set.
 
@@ -132,7 +144,7 @@ flowchart TD
 # San Zhang | Senior Product Manager
 
 ## Contact
-- Phone: 138-xxxx-xxxx | Email: zhangsan@email.com
+- Phone: 138-xxxx-xxxx | Email: candidate@example.invalid
 - Location: Beijing | Expected Salary: 80-100w CNY
 
 ## Target Role

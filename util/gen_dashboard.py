@@ -2,30 +2,36 @@
 gen_dashboard.py — Generate a Markdown or HTML dashboard from tracker.csv + job directories.
 
 Usage:
-    python util/gen_dashboard.py --user <username>
-    python util/gen_dashboard.py --user <username> --format html
-    python util/gen_dashboard.py --user <username> --output dashboard.html --vscode
+    python util/gen_dashboard.py --data-root /path/to/private-career-data
+    python util/gen_dashboard.py --data-root /path/to/private-career-data --format html
+    python util/gen_dashboard.py --data-root /path/to/private-career-data --format html --vscode
 
 Zero dependencies beyond Python stdlib.
 """
 
+from __future__ import annotations
+
 import argparse
 import csv
 import html
+import os
 import sys
 from datetime import datetime
 from pathlib import Path
 from urllib.parse import quote
 
-SKILL_ROOT = Path(__file__).resolve().parent.parent
-USERS_DIR = SKILL_ROOT / "users"
+try:
+    from util.data_boundary import DataBoundaryError
+except ModuleNotFoundError:  # Direct execution: ``python util/gen_dashboard.py``
+    from data_boundary import DataBoundaryError
 
 
 class DashboardError(ValueError):
     """Raised when a user's dashboard input is incomplete or invalid."""
 
 ACTIVE_STATUSES = {"evaluating", "applied", "interviewing"}
-HISTORY_STATUSES = {"offer", "rejected", "withdrawn"}
+OFFER_STATUSES = {"offer"}
+HISTORY_STATUSES = {"rejected", "closed", "withdrawn"}
 
 STAGE_ORDER = {"evaluating": 0, "applied": 1, "interviewing": 2}
 
@@ -35,6 +41,7 @@ STATUS_EMOJI = {
     "interviewing": "🎭",
     "offer": "🎉",
     "rejected": "❌",
+    "closed": "🔒",
     "withdrawn": "🚫",
 }
 
@@ -74,6 +81,7 @@ a:hover { text-decoration: underline; }
 .status-interviewing { background: #f3e5f5; color: #7b1fa2; }
 .status-offer { background: #e8f5e9; color: #1b5e20; font-weight: 700; }
 .status-rejected { background: #ffebee; color: #c62828; }
+.status-closed { background: #fff8e1; color: #8d6e00; }
 .status-withdrawn { background: #f5f5f5; color: #757575; }
 details { margin-bottom: 8px; }
 summary { cursor: pointer; color: #0366d6; font-size: 0.85em; }
@@ -83,19 +91,37 @@ footer { margin-top: 32px; padding-top: 16px; border-top: 1px solid #e0e0e0;
 """
 
 
-def load_tracker(user_dir: Path) -> list[dict]:
-    tracker_path = user_dir / "tracker.csv"
+def data_tracker_path(data_root: Path) -> Path:
+    """Resolve the migrated tracker path, with legacy-layout compatibility."""
+    migrated = data_root / "tracker" / "tracker.csv"
+    legacy = data_root / "tracker.csv"
+    if migrated.exists():
+        return migrated
+    if legacy.exists():
+        return legacy
+    return migrated
+
+
+def data_resume_dir(data_root: Path) -> Path:
+    """Resolve the migrated resume directory, with legacy-layout compatibility."""
+    migrated = data_root / "resumes"
+    legacy = data_root / "resume"
+    return migrated if migrated.exists() else legacy
+
+
+def load_tracker(data_root: Path) -> list[dict]:
+    tracker_path = data_tracker_path(data_root)
     if not tracker_path.exists():
         raise DashboardError(
-            f"tracker.csv not found in {user_dir}. Initialize the user workspace first."
+            f"tracker/tracker.csv not found in {data_root}. Configure the private data root first."
         )
     with open(tracker_path, encoding="utf-8") as f:
         return list(csv.DictReader(f))
 
 
-def find_job_dir(user_dir: Path, tid: int) -> Path | None:
+def find_job_dir(data_root: Path, tid: int) -> Path | None:
     """Find job directory by ID prefix."""
-    jobs_dir = user_dir / "jobs"
+    jobs_dir = data_root / "jobs"
     if not jobs_dir.exists():
         return None
     prefix = f"{tid:03d}_"
@@ -145,10 +171,11 @@ def external_markdown_link(label: str, url: str) -> str:
     return f"[{safe_label}]({safe_url})"
 
 
-def dashboard_rows(user_dir: Path) -> tuple[list[dict], list[dict]]:
-    rows = load_tracker(user_dir)
+def dashboard_rows(data_root: Path) -> tuple[list[dict], list[dict], list[dict]]:
+    rows = load_tracker(data_root)
 
     active = [r for r in rows if r.get("status") in ACTIVE_STATUSES]
+    offers = [r for r in rows if r.get("status") in OFFER_STATUSES]
     history = [r for r in rows if r.get("status") in HISTORY_STATUSES]
 
     def active_sort_key(r):
@@ -160,8 +187,9 @@ def dashboard_rows(user_dir: Path) -> tuple[list[dict], list[dict]]:
         return (score, -stage, r.get("last_updated", "") or "")
 
     active.sort(key=active_sort_key)
+    offers.sort(key=lambda r: r.get("last_updated", "") or "", reverse=True)
     history.sort(key=lambda r: r.get("last_updated", "") or "", reverse=True)
-    return active, history
+    return active, offers, history
 
 
 def render_row(row: dict, job_dir: Path | None, user_dir: Path, use_vscode: bool) -> str:
@@ -278,9 +306,9 @@ def render_markdown_table(rows: list[dict], user_dir: Path) -> str:
     return "\n".join(lines)
 
 
-def render_assets(user_dir: Path, use_vscode: bool) -> str:
+def render_assets(data_root: Path, use_vscode: bool) -> str:
     """Render links to global resume assets."""
-    resume_dir = user_dir / "resume"
+    resume_dir = data_resume_dir(data_root)
     links = []
 
     assets = [
@@ -307,8 +335,8 @@ def render_assets(user_dir: Path, use_vscode: bool) -> str:
     return f'<div class="assets">{"  ".join(links)}</div>'
 
 
-def render_markdown_assets(user_dir: Path) -> str:
-    resume_dir = user_dir / "resume"
+def render_markdown_assets(data_root: Path) -> str:
+    resume_dir = data_resume_dir(data_root)
     links = []
 
     assets = [
@@ -320,32 +348,32 @@ def render_markdown_assets(user_dir: Path) -> str:
     for filename, label in assets:
         path = resume_dir / filename
         if path.exists():
-            links.append(markdown_link(label, path, user_dir))
+            links.append(markdown_link(label, path, data_root))
 
     versions_dir = resume_dir / "versions"
     if versions_dir.exists():
         for version in sorted(versions_dir.iterdir()):
             if version.suffix == ".md":
                 name = version.stem.replace("_", " ").title()
-                links.append(markdown_link(f"📄 {name}", version, user_dir))
+                links.append(markdown_link(f"📄 {name}", version, data_root))
 
     return "\n".join(f"- {link}" for link in links) if links else "_No resume assets found._"
 
 
-def generate_dashboard_markdown(user_dir: Path) -> str:
-    active, history = dashboard_rows(user_dir)
+def generate_dashboard_markdown(data_root: Path) -> str:
+    active, offers, history = dashboard_rows(data_root)
 
     n_active = len(active)
     n_evaluating = sum(1 for r in active if r["status"] == "evaluating")
     n_applied = sum(1 for r in active if r["status"] == "applied")
     n_interviewing = sum(1 for r in active if r["status"] == "interviewing")
-    n_offer = sum(1 for r in history if r["status"] == "offer")
+    n_offer = len(offers)
     now = datetime.now().strftime("%Y-%m-%d %H:%M")
 
     return f"""# Career Dashboard
 
 Generated: {now}\\
-User: `{markdown_cell(user_dir.name)}`
+Data root: `{markdown_cell(data_root.name)}`
 
 ## Summary
 
@@ -359,32 +387,36 @@ User: `{markdown_cell(user_dir.name)}`
 
 ## Resume Assets
 
-{render_markdown_assets(user_dir)}
+{render_markdown_assets(data_root)}
+
+## Offers
+
+{render_markdown_table(offers, data_root)}
 
 ## Active Applications
 
-{render_markdown_table(active, user_dir)}
+{render_markdown_table(active, data_root)}
 
 ## History
 
-{render_markdown_table(history, user_dir)}
+{render_markdown_table(history, data_root)}
 
 ---
 
 Generated by `career-ops-cn/util/gen_dashboard.py`.\\
-Data source: [tracker.csv](tracker.csv)
+Data source: [tracker.csv]({data_tracker_path(data_root).relative_to(data_root).as_posix()})
 """
 
 
-def generate_dashboard(user_dir: Path, use_vscode: bool) -> str:
-    active, history = dashboard_rows(user_dir)
+def generate_dashboard(data_root: Path, use_vscode: bool) -> str:
+    active, offers, history = dashboard_rows(data_root)
 
     # Counts
     n_active = len(active)
     n_evaluating = sum(1 for r in active if r["status"] == "evaluating")
     n_applied = sum(1 for r in active if r["status"] == "applied")
     n_interviewing = sum(1 for r in active if r["status"] == "interviewing")
-    n_offer = sum(1 for r in history if r["status"] == "offer")
+    n_offer = len(offers)
 
     now = datetime.now().strftime("%Y-%m-%d %H:%M")
 
@@ -393,14 +425,14 @@ def generate_dashboard(user_dir: Path, use_vscode: bool) -> str:
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Career Dashboard — {html.escape(user_dir.name)}</title>
+<title>Career Dashboard — {html.escape(data_root.name)}</title>
 <style>{CSS}</style>
 </head>
 <body>
 <h1>💼 Career Dashboard</h1>
-<p class="meta">Generated: {now} · User: {html.escape(user_dir.name)}</p>
+<p class="meta">Generated: {now} · Data root: {html.escape(data_root.name)}</p>
 
-{render_assets(user_dir, use_vscode)}
+{render_assets(data_root, use_vscode)}
 
 <div class="counts">
   <span class="count-badge count-active">Active: {n_active}</span>
@@ -410,11 +442,14 @@ def generate_dashboard(user_dir: Path, use_vscode: bool) -> str:
   <span class="count-badge count-offer">🎉 Offer: {n_offer}</span>
 </div>
 
+<h2 class="section-title">Offers</h2>
+{render_table(offers, data_root, use_vscode)}
+
 <h2 class="section-title">Active Applications</h2>
-{render_table(active, user_dir, use_vscode)}
+{render_table(active, data_root, use_vscode)}
 
 <h2 class="section-title">History</h2>
-{render_table(history, user_dir, use_vscode)}
+{render_table(history, data_root, use_vscode)}
 
 <footer>
   Generated by <code>career-ops-cn/util/gen_dashboard.py</code> ·
@@ -427,15 +462,31 @@ def generate_dashboard(user_dir: Path, use_vscode: bool) -> str:
 
 def main():
     parser = argparse.ArgumentParser(description="Generate a Markdown or HTML career dashboard")
-    parser.add_argument("--user", required=True, help="Username under users/")
-    parser.add_argument("--output", default=None, help="Output path (default: users/<user>/dashboard.md)")
+    parser.add_argument(
+        "--data-root",
+        default=os.environ.get("CAREER_OPS_DATA_ROOT"),
+        help="External private data repository root (or CAREER_OPS_DATA_ROOT)",
+    )
+    parser.add_argument("--mode", choices=("local", "cloud"), default="local")
+    parser.add_argument("--output", default=None, help="Output path (default: <data-root>/dashboard.md)")
     parser.add_argument("--format", choices=("markdown", "html"), default=None, help="Output format (default: markdown)")
     parser.add_argument("--vscode", action="store_true", help="Include VS Code file URIs in HTML output")
     args = parser.parse_args()
 
-    user_dir = USERS_DIR / args.user
-    if not user_dir.exists():
-        print(f"ERROR: User directory not found: {user_dir}")
+    if args.mode == "cloud":
+        print(
+            "ERROR: cloud mode does not write dashboard files; render Markdown in the conversation "
+            "from GitHub plugin data.",
+            file=sys.stderr,
+        )
+        sys.exit(2)
+    if not args.data_root:
+        print("ERROR: pass --data-root or set CAREER_OPS_DATA_ROOT", file=sys.stderr)
+        sys.exit(2)
+
+    data_root = Path(args.data_root).expanduser().resolve()
+    if not data_root.is_dir():
+        print(f"ERROR: private data root not found: {data_root}", file=sys.stderr)
         sys.exit(1)
 
     if args.output:
@@ -443,12 +494,12 @@ def main():
         output_format = args.format or ("html" if output_path.suffix.lower() in {".htm", ".html"} else "markdown")
     else:
         output_format = args.format or "markdown"
-        output_path = user_dir / ("dashboard.html" if output_format == "html" else "dashboard.md")
+        output_path = data_root / ("dashboard.html" if output_format == "html" else "dashboard.md")
 
     try:
-        dashboard = generate_dashboard(user_dir, args.vscode) if output_format == "html" else generate_dashboard_markdown(user_dir)
+        dashboard = generate_dashboard(data_root, args.vscode) if output_format == "html" else generate_dashboard_markdown(data_root)
         output_path.write_text(dashboard, encoding="utf-8")
-    except (DashboardError, OSError, ValueError) as exc:
+    except (DashboardError, DataBoundaryError, OSError, ValueError) as exc:
         print(f"ERROR: {exc}", file=sys.stderr)
         sys.exit(1)
     print(f"✅ {output_format.title()} dashboard generated: {output_path}")
